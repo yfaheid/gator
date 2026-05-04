@@ -53,3 +53,21 @@ func handlerReset(s *state, cmd command) error {
 	}
 	return nil
 }
+
+func handlerUsers(s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		return fmt.Errorf("incorrect amount of args")
+	}
+	users, err := s.db.GetUsers(context.Background())
+	if err != nil {
+		return err
+	}
+	for _, v := range users {
+		if v.Name == s.cfg.UserName {
+			fmt.Printf("* %v (current)\n", v.Name)
+		} else {
+			fmt.Printf("* %v\n", v.Name)
+		}
+	}
+	return nil
+}
