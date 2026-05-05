@@ -81,13 +81,9 @@ func handlerAgg(s *state, cmd command) error {
 	return nil
 }
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 2 {
 		return fmt.Errorf("incorrect amount of args")
-	}
-	user, err := s.db.GetUser(context.Background(), s.cfg.UserName)
-	if err != nil {
-		return err
 	}
 	newFeed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{ID: uuid.New(), CreatedAt: time.Now(), UpdatedAt: time.Now(), Name: cmd.args[0], Url: cmd.args[1], UserID: user.ID})
 	if err != nil {
@@ -114,13 +110,9 @@ func handlerFeeds(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
 		return fmt.Errorf("incorrect amount of args")
-	}
-	user, err := s.db.GetUser(context.Background(), s.cfg.UserName)
-	if err != nil {
-		return err
 	}
 	feed, err := s.db.GetFeedByURL(context.Background(), cmd.args[0])
 	if err != nil {
@@ -130,13 +122,9 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 0 {
 		return fmt.Errorf("incorrect amount of args")
-	}
-	user, err := s.db.GetUser(context.Background(), s.cfg.UserName)
-	if err != nil {
-		return err
 	}
 	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
