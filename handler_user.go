@@ -96,3 +96,19 @@ func handlerAddFeed(s *state, cmd command) error {
 	fmt.Println(newFeed)
 	return nil
 }
+
+func handlerFeeds(s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		return fmt.Errorf("incorrect amount of args")
+	}
+	feeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		return err
+	}
+	for _, v := range feeds {
+		fmt.Println(v.Name)
+		fmt.Println(v.Url)
+		fmt.Println(v.Username)
+	}
+	return nil
+}
