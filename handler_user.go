@@ -2,7 +2,11 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"log"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -171,8 +175,49 @@ func scrapeFeeds(s *state) error {
 	if err != nil {
 		return err
 	}
+
 	for _, item := range rssfeed.Channel.Item {
-		fmt.Println(item.Title)
+		publishedAt := sql.NullTime{}
+		if t, err := time.Parse(time.RFC1123Z, item.PubDate); err == nil {
+			publishedAt = sql.NullTime{
+				Time:  t,
+				Valid: true,
+			}
+		}
+		_, err := s.db.CreatePost(context.Background(), database.CreatePostParams{ID: uuid.New(), CreatedAt: time.Now().UTC(), UpdatedAt: time.Now().UTC(), Title: sql.NullString{String: item.Title, Valid: true}, Url: item.Link,
+			Description: sql.NullString{
+				String: item.Description,
+				Valid:  true,
+			},
+			PublishedAt: publishedAt, FeedID: feed.ID})
+		if err != nil {
+			if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+				continue
+			}
+			log.Printf("Couldn't create post: %v", err)
+			continue
+		}
+	}
+	return nil
+}
+
+func handlerBrowse(s *state, cmd command, user database.User) error {
+	limit := 2
+	var err error
+	if len(cmd.args) > 0 {
+		limit, err = strconv.Atoi(cmd.args[0])
+		if err != nil {
+			return err
+		}
+	}
+	posts, err := s.db.GetPosts(context.Background(), database.GetPostsParams{UserID: user.ID, Limit: int32(limit)})
+	if err != nil {
+		return err
+	}
+	for _, post := range posts {
+		fmt.Println(post.Url)
+		fmt.Println(post.Title.String)
+		fmt.Println(post.Description.String)
 	}
 	return nil
 }
