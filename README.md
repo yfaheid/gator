@@ -10,6 +10,8 @@ Gator is a lightweight command-line RSS feed aggregator written in Go. It lets y
 * Store posts in a PostgreSQL database
 * Follow and unfollow feeds added by other users
 * View summarized posts with links to full articles
+* Periodically aggregate and fetch new posts
+* Simple multi-user support with login and registration
 
 ---
 
@@ -66,6 +68,8 @@ Create a file at:
 }
 ```
 
+> `current_user` is managed automatically by `gator register` and `gator login`. You typically should not edit it manually.
+
 ### 3. Set up your database
 
 Make sure your PostgreSQL database exists:
@@ -91,6 +95,36 @@ gator <command>
 ## Common Commands
 
 Here are a few useful commands to get started:
+
+### Register a user
+
+```bash
+gator register alice
+```
+
+Creates a new user account and sets it as the current user.
+
+---
+
+### Login
+
+```bash
+gator login alice
+```
+
+Switches the active user.
+
+---
+
+### List users
+
+```bash
+gator users
+```
+
+Displays all registered users.
+
+---
 
 ### Add a feed
 
@@ -145,7 +179,34 @@ Displays a list of recent posts with summaries and links.
 ### Aggregate feeds
 
 ```bash
-gator agg
+gator agg 30s
 ```
 
-Fetches and stores the latest posts from all followed feeds.
+Fetches and stores the latest posts from followed feeds every `30s`.
+
+You can use any valid Go duration format, such as:
+
+```bash
+gator agg 10s
+gator agg 1m
+gator agg 5m
+gator agg 1h
+```
+
+---
+
+## Quick Command Reference
+
+```bash
+gator register <username>
+gator login <username>
+gator users
+
+gator addfeed "<name>" <feed_url>
+gator follow <feed_url>
+gator unfollow <feed_url>
+
+gator feeds
+gator browse
+gator agg <time_interval>
+```
