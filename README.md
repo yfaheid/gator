@@ -34,7 +34,7 @@ psql --version
 Install the Gator CLI using `go install`:
 
 ```bash
-go install github.com/yourusername/gator@latest
+go install github.com/yfaheid/gator@latest
 ```
 
 Make sure your Go binary directory is in your `PATH`. Typically:
